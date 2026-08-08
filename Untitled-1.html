@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academic Result Management System</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #f4f6f9;
+        color: #1f2937;
+    }
+
+    header {
+        background: #172554;
+        color: white;
+        padding: 20px 28px;
+    }
+
+    header h1 {
+        margin: 0 0 5px;
+        font-size: 24px;
+    }
+
+    header p {
+        margin: 0;
+        color: #c7d2fe;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: auto;
+        padding: 24px;
+    }
+
+    .nav {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .nav button {
+        border: 0;
+        background: white;
+        color: #374151;
+        padding: 11px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    }
+
+    .nav button.active {
+        background: #2563eb;
+        color: white;
+    }
+
+    .page {
+        display: none;
+    }
+
+    .page.active {
+        display: block;
+    }
+
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .card .number {
+        font-size: 30px;
+        font-weight: 700;
+        margin-top: 8px;
+    }
+
+    .card .label {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .panel {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .panel h2 {
+        margin-top: 0;
+        font-size: 19px;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    input, select {
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        background: white;
+        min-width: 180px;
+    }
+
+    button.primary {
+        background: #2563eb;
+        color: white;
+        border: 0;
+        padding: 10px 16px;
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    button.secondary {
+        background: #e5e7eb;
+        color: #111827;
+        border: 0;
+        padding: 10px 16px;
+        border-radius: 7px;
+        cursor: pointer;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 14px;
+    }
+
+    th {
+        background: #f8fafc;
+        color: #374151;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .pass {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .fail {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .neutral {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .clickable {
+        color: #2563eb;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .bar-row {
+        margin: 14px 0;
+    }
+
+    .bar-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .bar {
+        height: 10px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .bar-fill {
+        height: 100%;
+        background: #2563eb;
+    }
+
+    .student-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .student-info h2 {
+        margin-bottom: 4px;
+    }
+
+    .student-info p {
+        margin: 3px 0;
+        color: #6b7280;
+    }
+
+    .empty {
+        padding: 30px;
+        text-align: center;
+        color: #6b7280;
+    }
+
+    @media(max-width: 900px) {
+        .cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .analysis-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media(max-width: 600px) {
+        .cards {
+            grid-template-columns: 1fr;
+        }
+
+        .container {
+            padding: 12px;
+        }
+
+        table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Academic Result Management System</h1>
+    <p>Courses • Enrollments • Students • Results • Analysis</p>
+</header>
+
+<div class="container">
+
+    <nav class="nav">
+        <button class="active" onclick="showPage('dashboard', this)">Dashboard</button>
+        <button onclick="showPage('courses', this)">Courses</button>
+        <button onclick="showPage('students', this)">Students</button>
+        <button onclick="showPage('results', this)">Results</button>
+        <button onclick="showPage('analysis', this)">Result Analysis</button>
+        <button onclick="showPage('history', this)">Student History</button>
+    </nav>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active">
+
+        <div class="cards">
+            <div class="card">
+                <div class="label">Courses</div>
+                <div class="number" id="courseCount"></div>
+            </div>
+
+            <div class="card">
+                <div class="label">Students</div>
+                <div class="number" id="studentCount"></div>
+            </div>
+
+            <div class="card">
+                <div class="label">Enrollments</div>
+                <div class="number" id="enrollmentCount"></div>
+            </div>
+
+            <div class="card">
+                <div class="label">Pass Percentage</div>
+                <div class="number" id="passPercentage"></div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Required UI Flow</h2>
+
+            <div class="toolbar">
+                <button class="primary" onclick="showPage('courses')">
+                    1. Course
+                </button>
+                <button class="primary" onclick="showPage('students')">
+                    2. Students Enrolled
+                </button>
+                <button class="primary" onclick="showPage('results')">
+                    3. Student Result
+                </button>
+                <button class="primary" onclick="showPage('analysis')">
+                    4. Result Analysis
+                </button>
+            </div>
+
+            <p>
+                Select a course to view its enrolled students, then select a
+                student to view the student's results and academic history.
+            </p>
+        </div>
+
+        <div class="panel">
+            <h2>Recent Results</h2>
+            <div id="recentResults"></div>
+        </div>
+    </section>
+
+    <!-- COURSES -->
+    <section id="courses" class="page">
+
+        <div class="panel">
+            <h2>Courses</h2>
+
+            <div class="toolbar">
+                <input
+                    id="courseSearch"
+                    placeholder="Search course..."
+                    oninput="renderCourses()"
+                >
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course</th>
+                        <th>Program</th>
+                        <th>Credits</th>
+                        <th>Enrolled</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="courseTable"></tbody>
+            </table>
+        </div>
+
+        <div class="panel" id="courseStudentsPanel" style="display:none">
+            <div id="courseStudents"></div>
+        </div>
+    </section>
+
+    <!-- STUDENTS -->
+    <section id="students" class="page">
+
+        <div class="panel">
+            <h2>Students</h2>
+
+            <div class="toolbar">
+                <input
+                    id="studentSearch"
+                    placeholder="Search student..."
+                    oninput="renderStudents()"
+                >
+
+                <select id="programFilter" onchange="renderStudents()">
+                    <option value="">All Programs</option>
+                </select>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Program</th>
+                        <th>Semester</th>
+                        <th>Enrolled Courses</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTable"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results" class="page">
+
+        <div class="panel">
+            <h2>Student Results</h2>
+
+            <div class="toolbar">
+                <select id="resultStudentFilter" onchange="renderResults()">
+                    <option value="">All Students</option>
+                </select>
+
+                <select id="resultSemesterFilter" onchange="renderResults()">
+                    <option value="">All Semesters</option>
+                </select>
+            </div>
+
+            <div id="resultsTable"></div>
+        </div>
+    </section>
+
+    <!-- ANALYSIS -->
+    <section id="analysis" class="page">
+
+        <div class="cards">
+            <div class="card">
+                <div class="label">Total Results</div>
+                <div class="number" id="analysisTotal"></div>
+            </div>
+
+            <div class="card">
+                <div class="label">Passed</div>
+                <div class="number" id="analysisPassed"></div>
+            </div>
+
+            <div class="card">
+                <div class="label">Failed</div>
+                <div class="number" id="analysisFailed"></div>
+            </div>
+
+            <div class="card">
+                <div class="label">Pass Percentage</div>
+                <div class="number" id="analysisPercentage"></div>
+            </div>
+        </div>
+
+        <div class="analysis-grid">
+
+            <div class="panel">
+                <h2>Course-wise Performance</h2>
+                <div id="courseAnalysis"></div>
+            </div>
+
+            <div class="panel">
+                <h2>Program-wise Result</h2>
+                <div id="programAnalysis"></div>
+            </div>
+
+            <div class="panel">
+                <h2>Semester-wise Result</h2>
+                <div id="semesterAnalysis"></div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="history" class="page">
+
+        <div class="panel">
+            <h2>Full Academic History</h2>
+
+            <div class="toolbar">
+                <select id="historyStudent" onchange="renderHistory()">
+                    <option value="">Select Student</option>
+                </select>
+            </div>
+
+            <div id="historyContent">
+                <div class="empty">
+                    Select a student to view complete academic history.
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+
+/*
+|--------------------------------------------------------------------------
+| DATA MODEL
+|--------------------------------------------------------------------------
+|
+| Course
+|   id, code, name, program, credits
+|
+| Student
+|   id, name, program
+|
+| Enrollment
+|   id, studentId, courseId, semester
+|
+| Result
+|   id, enrollmentId, assessment, marks, grade, status
+|
+|--------------------------------------------------------------------------
+*/
+
+const courses = [
+    {
+        id: "C001",
+        code: "CS101",
+        name: "Introduction to Programming",
+        program: "BCA",
+        credits: 4
+    },
+    {
+        id: "C002",
+        code: "CS201",
+        name: "Data Structures",
+        program: "BCA",
+        credits: 4
+    },
+    {
+        id: "C003",
+        code: "DB301",
+        name: "Database Management",
+        program: "BCA",
+        credits: 3
+    },
+    {
+        id: "C004",
+        code: "AI401",
+        name: "Artificial Intelligence",
+        program: "BSc Computer Science",
+        credits: 4
+    }
+];
+
+const students = [
+    {
+        id: "S001",
+        name: "Aarav Sharma",
+        program: "BCA"
+    },
+    {
+        id: "S002",
+        name: "Priya Nair",
+        program: "BCA"
+    },
+    {
+        id: "S003",
+        name: "Rahul Kumar",
+        program: "BSc Computer Science"
+    },
+    {
+        id: "S004",
+        name: "Sneha Reddy",
+        program: "BSc Computer Science"
+    }
+];
+
+const enrollments = [
+    { id: "E001", studentId: "S001", courseId: "C001", semester: "Semester 1" },
+    { id: "E002", studentId: "S001", courseId: "C002", semester: "Semester 2" },
+    { id: "E003", studentId: "S001", courseId: "C003", semester: "Semester 3" },
+
+    { id: "E004", studentId: "S002", courseId: "C001", semester: "Semester 1" },
+    { id: "E005", studentId: "S002", courseId: "C002", semester: "Semester 2" },
+    { id: "E006", studentId: "S002", courseId: "C003", semester: "Semester 3" },
+
+    { id: "E007", studentId: "S003", courseId: "C004", semester: "Semester 4" },
+    { id: "E008", studentId: "S004", courseId: "C004", semester: "Semester 4" }
+];
+
+const results = [
+    {
+        id: "R001",
+        enrollmentId: "E001",
+        assessment: "Final",
+        marks: 82,
+        grade: "A",
+        status: "Pass"
+    },
+    {
+        id: "R002",
+        enrollmentId: "E002",
+        assessment: "Final",
+        marks: 74,
+        grade: "B",
+        status: "Pass"
+    },
+    {
+        id: "R003",
+        enrollmentId: "E003",
+        assessment: "Final",
+        marks: 91,
+        grade: "A+",
+        status: "Pass"
+    },
+    {
+        id: "R004",
+        enrollmentId: "E004",
+        assessment: "Final",
+        marks: 67,
+        grade: "B",
+        status: "Pass"
+    },
+    {
+        id: "R005",
+        enrollmentId: "E005",
+        assessment: "Final",
+        marks: 39,
+        grade: "F",
+        status: "Fail"
+    },
+    {
+        id: "R006",
+        enrollmentId: "E006",
+        assessment: "Final",
+        marks: 58,
+        grade: "C",
+        status: "Pass"
+    },
+    {
+        id: "R007",
+        enrollmentId: "E007",
+        assessment: "Final",
+        marks: 88,
+        grade: "A",
+        status: "Pass"
+    },
+    {
+        id: "R008",
+        enrollmentId: "E008",
+        assessment: "Final",
+        marks: 46,
+        grade: "C",
+        status: "Pass"
+    }
+];
+
+
+/* -----------------------------------------------------------------------
+   HELPERS
+------------------------------------------------------------------------ */
+
+function getStudent(id) {
+    return students.find(s => s.id === id);
+}
+
+function getCourse(id) {
+    return courses.find(c => c.id === id);
+}
+
+function getEnrollment(id) {
+    return enrollments.find(e => e.id === id);
+}
+
+function getResultsForEnrollment(enrollmentId) {
+    return results.filter(r => r.enrollmentId === enrollmentId);
+}
+
+function gradeFromMarks(marks) {
+    if (marks >= 90) return "A+";
+    if (marks >= 80) return "A";
+    if (marks >= 70) return "B";
+    if (marks >= 60) return "B";
+    if (marks >= 50) return "C";
+    if (marks >= 40) return "D";
+    return "F";
+}
+
+function statusFromMarks(marks) {
+    return marks >= 40 ? "Pass" : "Fail";
+}
+
+function percentage(passed, total) {
+    if (!total) return "0%";
+    return ((passed / total) * 100).toFixed(1) + "%";
+}
+
+function statusBadge(status) {
+    return `<span class="badge ${status === "Pass" ? "pass" : "fail"}">
+                ${status}
+            </span>`;
+}
+
+
+/* -----------------------------------------------------------------------
+   NAVIGATION
+------------------------------------------------------------------------ */
+
+function showPage(pageId, button) {
+    document.querySelectorAll(".page")
+        .forEach(page => page.classList.remove("active"));
+
+    document.getElementById(pageId).classList.add("active");
+
+    document.querySelectorAll(".nav button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    if (button) {
+        button.classList.add("active");
+    }
+
+    if (pageId === "courses") renderCourses();
+    if (pageId === "students") renderStudents();
+    if (pageId === "results") renderResults();
+    if (pageId === "analysis") renderAnalysis();
+    if (pageId === "history") renderHistory();
+}
+
+
+/* -----------------------------------------------------------------------
+   DASHBOARD
+------------------------------------------------------------------------ */
+
+function renderDashboard() {
+
+    document.getElementById("courseCount").textContent =
+        courses.length;
+
+    document.getElementById("studentCount").textContent =
+        students.length;
+
+    document.getElementById("enrollmentCount").textContent =
+        enrollments.length;
+
+    const passed = results.filter(r => r.status === "Pass").length;
+
+    document.getElementById("passPercentage").textContent =
+        percentage(passed, results.length);
+
+    const recent = results.slice(-5).reverse();
+
+    document.getElementById("recentResults").innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${recent.map(r => {
+
+                    const enrollment = getEnrollment(r.enrollmentId);
+                    const student = getStudent(enrollment.studentId);
+                    const course = getCourse(enrollment.courseId);
+
+                    return `
+                    <tr>
+                        <td>${student.name}</td>
+                        <td>${course.code} - ${course.name}</td>
+                        <td>${enrollment.semester}</td>
+                        <td>${r.marks}</td>
+                        <td>${r.grade}</td>
+                        <td>${statusBadge(r.status)}</td>
+                    </tr>`;
+                }).join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+
+/* -----------------------------------------------------------------------
+   COURSES → STUDENTS ENROLLED
+------------------------------------------------------------------------ */
+
+function renderCourses() {
+
+    const search =
+        document.getElementById("courseSearch").value.toLowerCase();
+
+    const filtered = courses.filter(c =>
+        `${c.code} ${c.name} ${c.program}`
+            .toLowerCase()
+            .includes(search)
+    );
+
+    document.getElementById("courseTable").innerHTML =
+        filtered.map(course => {
+
+            const count = enrollments.filter(
+                e => e.courseId === course.id
+            ).length;
+
+            return `
+            <tr>
+                <td>${course.code}</td>
+                <td>${course.name}</td>
+                <td>${course.program}</td>
+                <td>${course.credits}</td>
+                <td>${count}</td>
+                <td>
+                    <span class="clickable"
+                        onclick="showEnrolledStudents('${course.id}')">
+                        View Students
+                    </span>
+                </td>
+            </tr>
+            `;
+        }).join("");
+}
+
+function showEnrolledStudents(courseId) {
+
+    const course = getCourse(courseId);
+
+    const courseEnrollments =
+        enrollments.filter(e => e.courseId === courseId);
+
+    const panel =
+        document.getElementById("courseStudentsPanel");
+
+    panel.style.display = "block";
+
+    document.getElementById("courseStudents").innerHTML = `
+        <h2>${course.code} — ${course.name}</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Program</th>
+                    <th>Semester</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                ${courseEnrollments.map(enrollment => {
+
+                    const student =
+                        getStudent(enrollment.studentId);
+
+                    const studentResults =
+                        getResultsForEnrollment(enrollment.id);
+
+                    const result =
+                        studentResults[0];
+
+                    return `
+                    <tr>
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.program}</td>
+                        <td>${enrollment.semester}</td>
+                        <td>
+                            <span class="clickable"
+                                onclick="openStudentResult('${student.id}')">
+                                ${result ? result.grade : "Pending"}
+                            </span>
+                        </td>
+                    </tr>
+                    `;
+                }).join("")}
+            </tbody>
+        </table>
+    `;
+
+    panel.scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+
+/* -----------------------------------------------------------------------
+   STUDENTS
+------------------------------------------------------------------------ */
+
+function initializeStudentFilters() {
+
+    const programs =
+        [...new Set(students.map(s => s.program))];
+
+    document.getElementById("programFilter").innerHTML =
+        `<option value="">All Programs</option>` +
+        programs.map(p =>
+            `<option value="${p}">${p}</option>`
+        ).join("");
+
+    document.getElementById("resultStudentFilter").innerHTML =
+        `<option value="">All Students</option>` +
+        students.map(s =>
+            `<option value="${s.id}">${s.name}</option>`
+        ).join("");
+
+    const semesters =
+        [...new Set(enrollments.map(e => e.semester))];
+
+    document.getElementById("resultSemesterFilter").innerHTML =
+        `<option value="">All Semesters</option>` +
+        semesters.map(s =>
+            `<option value="${s}">${s}</option>`
+        ).join("");
+
+    document.getElementById("historyStudent").innerHTML =
+        `<option value="">Select Student</option>` +
+        students.map(s =>
+            `<option value="${s.id}">${s.name}</option>`
+        ).join("");
+}
+
+function renderStudents() {
+
+    const search =
+        document.getElementById("studentSearch").value.toLowerCase();
+
+    const program =
+        document.getElementById("programFilter").value;
+
+    const filtered = students.filter(student => {
+
+        const matchesSearch =
+            `${student.id} ${student.name} ${student.program}`
+                .toLowerCase()
+                .includes(search);
+
+        const matchesProgram =
+            !program || student.program === program;
+
+        return matchesSearch && matchesProgram;
+    });
+
+    document.getElementById("studentTable").innerHTML =
+        filtered.map(student => {
+
+            const studentEnrollments =
+                enrollments.filter(
+                    e => e.studentId === student.id
+                );
+
+            const semester =
+                studentEnrollments.length
+                    ? studentEnrollments[studentEnrollments.length - 1].semester
+                    : "-";
+
+            return `
+            <tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.program}</td>
+                <td>${semester}</td>
+                <td>${studentEnrollments.length}</td>
+                <td>
+                    <span class="clickable"
+                        onclick="openStudentResult('${student.id}')">
+                        View Result
+                    </span>
+                </td>
+            </tr>
+            `;
+        }).join("");
+}
+
+
+/* -----------------------------------------------------------------------
+   STUDENT RESULT
+------------------------------------------------------------------------ */
+
+function openStudentResult(studentId) {
+
+    showPage("results");
+
+    document.getElementById("resultStudentFilter").value =
+        studentId;
+
+    renderResults();
+}
+
+function renderResults() {
+
+    const studentId =
+        document.getElementById("resultStudentFilter").value;
+
+    const semester =
+        document.getElementById("resultSemesterFilter").value;
+
+    let filteredEnrollments = enrollments;
+
+    if (studentId) {
+        filteredEnrollments =
+            filteredEnrollments.filter(
+                e => e.studentId === studentId
+            );
+    }
+
+    if (semester) {
+        filteredEnrollments =
+            filteredEnrollments.filter(
+                e => e.semester === semester
+            );
+    }
+
+    const rows = [];
+
+    filteredEnrollments.forEach(enrollment => {
+
+        const student =
+            getStudent(enrollment.studentId);
+
+        const course =
+            getCourse(enrollment.courseId);
+
+        const enrollmentResults =
+            getResultsForEnrollment(enrollment.id);
+
+        enrollmentResults.forEach(result => {
+
+            rows.push(`
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${course.code}</td>
+                    <td>${course.name}</td>
+                    <td>${enrollment.semester}</td>
+                    <td>${result.assessment}</td>
+                    <td>${result.marks}</td>
+                    <td>${result.grade}</td>
+                    <td>${statusBadge(result.status)}</td>
+                </tr>
+            `);
+        });
+    });
+
+    if (!rows.length) {
+        document.getElementById("resultsTable").innerHTML =
+            `<div class="empty">No results found.</div>`;
+        return;
+    }
+
+    document.getElementById("resultsTable").innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Course Name</th>
+                    <th>Semester</th>
+                    <th>Assessment</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows.join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+
+/* -----------------------------------------------------------------------
+   RESULT ANALYSIS
+------------------------------------------------------------------------ */
+
+function renderAnalysis() {
+
+    const total = results.length;
+    const passed =
+        results.filter(r => r.status === "Pass").length;
+    const failed =
+        results.filter(r => r.status === "Fail").length;
+
+    document.getElementById("analysisTotal").textContent = total;
+    document.getElementById("analysisPassed").textContent = passed;
+    document.getElementById("analysisFailed").textContent = failed;
+
+    document.getElementById("analysisPercentage").textContent =
+        percentage(passed, total);
+
+    renderCourseAnalysis();
+    renderProgramAnalysis();
+    renderSemesterAnalysis();
+}
+
+function renderCourseAnalysis() {
+
+    document.getElementById("courseAnalysis").innerHTML =
+        courses.map(course => {
+
+            const courseEnrollments =
+                enrollments.filter(
+                    e => e.courseId === course.id
+                );
+
+            const courseResults = results.filter(r =>
+                courseEnrollments.some(
+                    e => e.id === r.enrollmentId
+                )
+            );
+
+            const passed =
+                courseResults.filter(
+                    r => r.status === "Pass"
+                ).length;
+
+            const rate =
+                courseResults.length
+                    ? (passed / courseResults.length) * 100
+                    : 0;
+
+            return `
+                <div class="bar-row">
+                    <div class="bar-label">
+                        <span>${course.code} - ${course.name}</span>
+                        <strong>${rate.toFixed(1)}%</strong>
+                    </div>
+
+                    <div class="bar">
+                        <div
+                            class="bar-fill"
+                            style="width:${rate}%">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+}
+
+function renderProgramAnalysis() {
+
+    const programs =
+        [...new Set(students.map(s => s.program))];
+
+    document.getElementById("programAnalysis").innerHTML =
+        programs.map(program => {
+
+            const programStudents =
+                students.filter(
+                    s => s.program === program
+                );
+
+            const programEnrollments =
+                enrollments.filter(e =>
+                    programStudents.some(
+                        s => s.id === e.studentId
+                    )
+                );
+
+            const programResults =
+                results.filter(r =>
+                    programEnrollments.some(
+                        e => e.id === r.enrollmentId
+                    )
+                );
+
+            const passed =
+                programResults.filter(
+                    r => r.status === "Pass"
+                ).length;
+
+            const rate =
+                programResults.length
+                    ? (passed / programResults.length) * 100
+                    : 0;
+
+            return `
+                <div class="bar-row">
+                    <div class="bar-label">
+                        <span>${program}</span>
+                        <strong>${rate.toFixed(1)}%</strong>
+                    </div>
+
+                    <div class="bar">
+                        <div
+                            class="bar-fill"
+                            style="width:${rate}%">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+}
+
+function renderSemesterAnalysis() {
+
+    const semesters =
+        [...new Set(enrollments.map(e => e.semester))];
+
+    document.getElementById("semesterAnalysis").innerHTML =
+        semesters.map(semester => {
+
+            const semesterEnrollments =
+                enrollments.filter(
+                    e => e.semester === semester
+                );
+
+            const semesterResults =
+                results.filter(r =>
+                    semesterEnrollments.some(
+                        e => e.id === r.enrollmentId
+                    )
+                );
+
+            const passed =
+                semesterResults.filter(
+                    r => r.status === "Pass"
+                ).length;
+
+            const rate =
+                semesterResults.length
+                    ? (passed / semesterResults.length) * 100
+                    : 0;
+
+            return `
+                <div class="bar-row">
+                    <div class="bar-label">
+                        <span>${semester}</span>
+                        <strong>${rate.toFixed(1)}%</strong>
+                    </div>
+
+                    <div class="bar">
+                        <div
+                            class="bar-fill"
+                            style="width:${rate}%">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join("");
+}
+
+
+/* -----------------------------------------------------------------------
+   FULL ACADEMIC HISTORY
+------------------------------------------------------------------------ */
+
+function renderHistory() {
+
+    const studentId =
+        document.getElementById("historyStudent").value;
+
+    if (!studentId) {
+        document.getElementById("historyContent").innerHTML =
+            `<div class="empty">
+                Select a student to view complete academic history.
+             </div>`;
+        return;
+    }
+
+    const student = getStudent(studentId);
+
+    const studentEnrollments =
+        enrollments.filter(
+            e => e.studentId === studentId
+        );
+
+    document.getElementById("historyContent").innerHTML = `
+
+        <div class="student-header">
+            <div class="student-info">
+                <h2>${student.name}</h2>
+                <p>Student ID: ${student.id}</p>
+                <p>Program: ${student.program}</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Semester</th>
+                    <th>Course</th>
+                    <th>Assessment</th>
+                    <th>Marks</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                ${studentEnrollments.map(enrollment => {
+
+                    const course =
+                        getCourse(enrollment.courseId);
+
+                    const enrollmentResults =
+                        getResultsForEnrollment(
+                            enrollment.id
+                        );
+
+                    return enrollmentResults.map(result => `
+                        <tr>
+                            <td>${enrollment.semester}</td>
+                            <td>
+                                ${course.code} -
+                                ${course.name}
+                            </td>
+                            <td>${result.assessment}</td>
+                            <td>${result.marks}</td>
+                            <td>${result.grade}</td>
+                            <td>${statusBadge(result.status)}</td>
+                        </tr>
+                    `).join("");
+
+                }).join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+
+/* -----------------------------------------------------------------------
+   INITIALIZE
+------------------------------------------------------------------------ */
+
+initializeStudentFilters();
+renderDashboard();
+renderCourses();
+renderStudents();
+renderResults();
+renderAnalysis();
+
+</script>
+
+</body>
+</html>
